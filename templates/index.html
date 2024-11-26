@@ -4,90 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sniper Game</title>
-    <style>
-        body {
-            background-color: black;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        #gameCanvas {
-            border: 2px solid white;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
-    <script src="https://cdn.socket.io/4.1.3/socket.io.min.js"></script>
+    <div class="container">
+        <h1>Welcome to the Sniper Game</h1>
+        <p>Test your shooting skills by playing the Sniper Game. Click the button below to start the game.</p>
+        <button onclick="startGame()">Start Game</button>
+    </div>
+
     <script>
-        const socket = io.connect("http://127.0.0.1:5000");
-
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-
-        const SCREEN_WIDTH = 800;
-        const SCREEN_HEIGHT = 600;
-
-        let player_position = { x: 375, y: 550 };
-        let score = 0;
-        let bullets = [];
-        let enemies = [];
-
-        function drawPlayer() {
-            ctx.fillStyle = "green";
-            ctx.fillRect(player_position.x, player_position.y, 50, 50);
+        function startGame() {
+            fetch('/start-game')
+                .then(response => response.text())
+                .then(message => alert(message))
+                .catch(error => console.error('Error:', error));
         }
-
-        function drawBullets() {
-            ctx.fillStyle = "white";
-            for (let bullet of bullets) {
-                ctx.fillRect(bullet.x, bullet.y, 5, 10);
-            }
-        }
-
-        function drawEnemies() {
-            ctx.fillStyle = "red";
-            for (let enemy of enemies) {
-                ctx.fillRect(enemy.x, enemy.y, 50, 50);
-            }
-        }
-
-        function drawScore() {
-            ctx.fillStyle = "white";
-            ctx.font = "20px Arial";
-            ctx.fillText("Score: " + score, 10, 30);
-        }
-
-        function updateGame(data) {
-            player_position = data.player_position;
-            bullets = data.bullets;
-            enemies = data.enemies;
-            score = data.score;
-
-            ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-            drawPlayer();
-            drawBullets();
-            drawEnemies();
-            drawScore();
-        }
-
-        socket.on('update_game', updateGame);
-
-        window.addEventListener("keydown", function(event) {
-            if (event.key === "ArrowLeft") {
-                socket.emit('move_player', { direction: 'left' });
-            }
-            if (event.key === "ArrowRight") {
-                socket.emit('move_player', { direction: 'right' });
-            }
-            if (event.key === " ") {
-                socket.emit('shoot', {});
-            }
-        });
-
-        socket.emit('start_game', {});  // Start the game when the page loads
+        
     </script>
 </body>
 </html>
